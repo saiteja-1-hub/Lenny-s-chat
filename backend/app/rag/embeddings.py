@@ -8,7 +8,7 @@ async def get_embedding(text: str) -> list[float]:
     Generate an embedding for the supplied text.
 
     Production:
-        OpenAI text-embedding-3-small
+        Gemini gemini-embedding-001
 
     Local development:
         Ollama nomic-embed-text
@@ -17,10 +17,11 @@ async def get_embedding(text: str) -> list[float]:
     settings = get_settings()
 
     # ============================================================
-    # Ollama Embeddings
+    # Ollama
     # ============================================================
 
     if settings.embedding_provider == "ollama":
+
         async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(
                 f"{settings.ollama_base_url}/api/embeddings",
@@ -36,7 +37,6 @@ async def get_embedding(text: str) -> list[float]:
 
             embedding = data["embedding"]
 
-            # Verify vector dimension
             if len(embedding) != settings.embedding_dim:
                 raise ValueError(
                     f"Embedding dimension mismatch. "
@@ -47,51 +47,69 @@ async def get_embedding(text: str) -> list[float]:
             return embedding
 
     # ============================================================
-    # OpenAI Embeddings
+    # Gemini
     # ============================================================
 
-    if settings.embedding_provider == "openai":
+    if settings.embedding_provider == "gemini":
 
-        if not settings.openai_api_key:
+        if not settings.gemini_api_key:
             raise ValueError(
-                "OPENAI_API_KEY is not configured."
+                "GEMINI_API_KEY is not configured."
             )
+
+        url = (
+            "https://generativelanguage.googleapis.com/"
+            "v1beta/models/"
+            f"{settings.embedding_model}:embedContent"
+        )
+
+        headers = {
+            "x-goog-api-key": settings.gemini_api_key,
+            "Content-Type": "application/json",
+        }
+
+        payload = {
+            "model": f"models/{settings.embedding_model}",
+            "content": {
+                "parts": [
+                    {
+                        "text": text
+                    }
+                ]
+            },
+            "output_dimensionality": settings.embedding_dim,
+        }
 
         async with httpx.AsyncClient(timeout=60.0) as client:
 
             response = await client.post(
-                "https://api.openai.com/v1/embeddings",
-                headers={
-                    "Authorization": (
-                        f"Bearer {settings.openai_api_key}"
-                    ),
-                    "Content-Type": "application/json",
-                },
-                json={
-                    "model": settings.embedding_model,
-                    "input": text,
-                    "dimensions": settings.embedding_dim,
-                },
+                url,
+                headers=headers,
+                json=payload,
             )
 
             response.raise_for_status()
 
             data = response.json()
 
-            embedding = data["data"][0]["embedding"]
+            try:
+                embedding = data["embedding"]["values"]
+            except KeyError:
+                raise ValueError(
+                    f"Unexpected Gemini embedding response: {data}"
+                )
 
-            # Verify vector dimension
             if len(embedding) != settings.embedding_dim:
                 raise ValueError(
                     f"Embedding dimension mismatch. "
                     f"Expected {settings.embedding_dim}, "
-                    f"but OpenAI returned {len(embedding)} dimensions."
+                    f"but Gemini returned {len(embedding)} dimensions."
                 )
 
             return embedding
 
     # ============================================================
-    # Unsupported Provider
+    # Unsupported provider
     # ============================================================
 
     raise ValueError(

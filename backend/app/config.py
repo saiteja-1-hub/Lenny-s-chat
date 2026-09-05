@@ -22,45 +22,43 @@ class Settings(BaseSettings):
     # LLM Providers
     # ============================================================
 
-    # "ollama" for local development
-    # "claude" for production
+    # Production LLM
     default_provider: str = "claude"
 
-    # Ollama - mainly for local development
+    # Ollama - local development only
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "llama3.1:8b"
 
-    # Anthropic / Claude
+    # Claude
     anthropic_api_key: str | None = None
     anthropic_model: str = "claude-sonnet-4-6"
 
-    # OpenAI
-    # Used for embeddings in production
-    openai_api_key: str | None = None
+    # ============================================================
+    # Gemini
+    # ============================================================
+
+    gemini_api_key: str | None = None
 
     # ============================================================
     # Embeddings
     # ============================================================
 
-    # "ollama" for local development
-    # "openai" for production
-    embedding_provider: str = "openai"
+    # Production embedding provider
+    embedding_provider: str = "gemini"
 
-    # OpenAI embedding model
-    embedding_model: str = "text-embedding-3-small"
+    # Gemini embedding model
+    embedding_model: str = "gemini-embedding-001"
 
     # IMPORTANT:
-    # Your PostgreSQL pgvector column is currently Vector(768)
+    # PostgreSQL currently uses Vector(768)
     embedding_dim: int = 768
 
     # ============================================================
     # RAG
     # ============================================================
 
-    # Number of chunks returned by similarity search
     top_k: int = 5
 
-    # Minimum similarity required for a chunk
     similarity_threshold: float = 0.5
 
     # ============================================================
