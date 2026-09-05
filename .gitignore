@@ -1,0 +1,28 @@
+# --- Python / backend ---
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+backend/.env
+backend/data/
+*.egg-info/
+.pytest_cache/
+error_output.txt
+
+# --- Node / frontend ---
+node_modules/
+.next/
+frontend/.env.local
+frontend/.env
+npm-debug.log*
+next-env.d.ts
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
+
+# --- Docker ---
+*.pid
