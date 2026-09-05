@@ -58,7 +58,15 @@ async def stream_chat(req: ChatRequest, db: AsyncSession = Depends(get_db)):
                 system_prompt = build_grounded_system_prompt(chunks)
                 user_content = req.message
 
-            llm = get_provider(req.provider)
+            try:
+                llm = get_provider(req.provider)
+            except Exception as exc:  # noqa: BLE001
+                logger.exception("Failed to initialize LLM provider")
+                yield _sse("status", "Retrieving transcripts...")
+                yield _sse("sources", chunks)
+                yield _sse("token", f"[Error: could not start '{req.provider}' provider — {exc}]")
+                yield "data: [DONE]\n\n"
+                return
 
             yield _sse("status", "Retrieving transcripts...")
             yield _sse("sources", chunks)
