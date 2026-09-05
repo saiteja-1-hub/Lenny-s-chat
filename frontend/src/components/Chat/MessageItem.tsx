@@ -39,7 +39,7 @@ export function MessageItem({ message, onOpenArtifact }: MessageItemProps) {
             {message.sources.map((s, i) => (
               <span
                 key={i}
-                title={s.text as unknown as string}
+                title={s.text}
                 className="rounded-full border border-growth-600/30 bg-growth-600/5 px-2 py-0.5 text-[11px] text-growth-700"
               >
                 {s.guest} · {s.timestamp || s.episode}

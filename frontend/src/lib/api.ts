@@ -19,6 +19,7 @@ export interface SourceRef {
   guest: string;
   timestamp: string | null;
   score: number;
+  text?: string;
 }
 
 export interface MessageData {
