@@ -1,31 +1,76 @@
 from functools import lru_cache
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        extra="ignore"
+    )
 
+    # ============================================================
     # Database
-    database_url: str = "postgresql+asyncpg://postgres:password123@localhost:5432/lenny_assistant"
+    # ============================================================
 
-    # LLM providers
-    default_provider: str = "ollama"  # "ollama" or "claude"
+    database_url: str = (
+        "postgresql+asyncpg://postgres:password123@localhost:5432/"
+        "lenny_assistant"
+    )
+
+    # ============================================================
+    # LLM Providers
+    # ============================================================
+
+    # "ollama" for local development
+    # "claude" for production
+    default_provider: str = "claude"
+
+    # Ollama - mainly for local development
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "llama3.1:8b"
+
+    # Anthropic / Claude
     anthropic_api_key: str | None = None
     anthropic_model: str = "claude-sonnet-4-6"
 
-    # Embeddings
-    embedding_provider: str = "ollama"  # "ollama" or "local"
-    embedding_model: str = "nomic-embed-text"
-    embedding_dim: int = 768  # 768 for nomic-embed-text, 384 for all-MiniLM-L6-v2
+    # OpenAI
+    # Used for embeddings in production
+    openai_api_key: str | None = None
 
+    # ============================================================
+    # Embeddings
+    # ============================================================
+
+    # "ollama" for local development
+    # "openai" for production
+    embedding_provider: str = "openai"
+
+    # OpenAI embedding model
+    embedding_model: str = "text-embedding-3-small"
+
+    # IMPORTANT:
+    # Your PostgreSQL pgvector column is currently Vector(768)
+    embedding_dim: int = 768
+
+    # ============================================================
     # RAG
+    # ============================================================
+
+    # Number of chunks returned by similarity search
     top_k: int = 5
+
+    # Minimum similarity required for a chunk
     similarity_threshold: float = 0.5
 
-    # App
-    cors_origins: list[str] = ["http://localhost:3000"]
+    # ============================================================
+    # Application
+    # ============================================================
+
+    cors_origins: list[str] = [
+        "http://localhost:3000"
+    ]
+
     log_level: str = "INFO"
 
 
