@@ -6,68 +6,84 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
-        extra="ignore"
+        extra="ignore",
     )
 
     # ============================================================
-    # Database
+    # DATABASE
     # ============================================================
 
     database_url: str = (
-        "postgresql+asyncpg://postgres:password123@localhost:5432/"
-        "lenny_assistant"
+        "postgresql+asyncpg://postgres:password123@localhost:5432/lenny_assistant"
     )
 
     # ============================================================
-    # LLM Providers
+    # DEFAULT LLM PROVIDER
     # ============================================================
 
-    # Production LLM
-    default_provider: str = "claude"
-
-    # Ollama - local development only
-    ollama_base_url: str = "http://localhost:11434"
-    ollama_model: str = "llama3.1:8b"
-
-    # Claude
-    anthropic_api_key: str | None = None
-    anthropic_model: str = "claude-sonnet-4-6"
+    # Production: Gemini
+    # Local development: change to "ollama" if needed
+    default_provider: str = "gemini"
 
     # ============================================================
-    # Gemini
+    # GEMINI
     # ============================================================
 
     gemini_api_key: str | None = None
 
+    # Gemini model used for chat generation
+    gemini_model: str = "gemini-2.5-flash"
+
     # ============================================================
-    # Embeddings
+    # OLLAMA
     # ============================================================
 
-    # Production embedding provider
+    # Used for local development only
+    ollama_base_url: str = "http://localhost:11434"
+
+    ollama_model: str = "llama3.1:8b"
+
+    # ============================================================
+    # EMBEDDINGS
+    # ============================================================
+
+    # Production:
+    # Gemini embeddings
+    #
+    # Local development:
+    # Ollama embeddings can be used by changing this to "ollama"
     embedding_provider: str = "gemini"
 
     # Gemini embedding model
     embedding_model: str = "gemini-embedding-001"
 
     # IMPORTANT:
-    # PostgreSQL currently uses Vector(768)
+    # Your PostgreSQL pgvector column is Vector(768),
+    # so this must remain 768.
     embedding_dim: int = 768
 
     # ============================================================
-    # RAG
+    # RAG / RETRIEVAL
     # ============================================================
 
+    # Number of transcript chunks retrieved
     top_k: int = 5
 
+    # Minimum similarity score required for retrieved chunks
     similarity_threshold: float = 0.5
 
     # ============================================================
-    # Application
+    # CORS
     # ============================================================
 
     cors_origins: list[str] = [
-        "http://localhost:3000"
+        "http://localhost:3000",
+        "https://chat-lenny-ai.onrender.com",
     ]
+
+    # ============================================================
+    # LOGGING
+    # ============================================================
 
     log_level: str = "INFO"
 
